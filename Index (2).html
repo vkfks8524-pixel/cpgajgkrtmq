@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>반별 집합 안내</title>
+  <style>
+    :root{
+      --bg:#f7f8fb;
+      --card:#ffffff;
+      --text:#111827;
+      --muted:#6b7280;
+      --line:#e5e7eb;
+      --accent:#2563eb;
+      --shadow: 0 12px 30px rgba(17,24,39,.10);
+      --radius: 18px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+      background: linear-gradient(180deg, #ffffff 0%, var(--bg) 70%);
+      color:var(--text);
+    }
+    .wrap{
+      max-width: 520px;
+      margin: 0 auto;
+      padding: 18px 16px 28px;
+    }
+    .top{
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 18px 16px;
+      box-shadow: var(--shadow);
+    }
+    .title{
+      font-size: 26px;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      margin: 0 0 6px;
+    }
+    .subtitle{
+      margin:0;
+      font-size: 16px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .grid{
+      margin-top: 14px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .btn{
+      width:100%;
+      border: 0;
+      background: #111827;
+      color: #fff;
+      padding: 18px 16px;
+      border-radius: 16px;
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      box-shadow: 0 10px 18px rgba(17,24,39,.18);
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      cursor:pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition: transform .08s ease, filter .08s ease, background .2s ease;
+    }
+    .btn:active{ transform: scale(.99); filter: brightness(.98); }
+    .btn small{
+      font-size: 14px;
+      font-weight: 700;
+      opacity:.85;
+    }
+    .arrow{
+      width: 36px;
+      height: 36px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.14);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size: 18px;
+    }
+
+    /* ✅ 선택 후: 선택한 버튼만 남기기 */
+    #btnList.compact .btn:not(.active){
+      display:none;
+    }
+    .btn.active{
+      background: linear-gradient(135deg, #111827 0%, #1d4ed8 120%);
+    }
+
+    /* ✅ 하단 패널: 처음엔 아예 숨김 */
+    .panel{
+      margin-top: 14px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      display:none; /* 핵심 */
+    }
+    .panel.show{
+      display:block;
+    }
+
+    .panelInner{
+      padding: 16px;
+    }
+    .hiddenArea{
+      max-height: 0;
+      opacity: 0;
+      transform: translateY(-6px);
+      overflow: hidden;
+      transition: max-height .35s ease, opacity .25s ease, transform .25s ease;
+      border-top: 1px solid var(--line);
+      background: linear-gradient(180deg, #ffffff 0%, #fafbff 100%);
+    }
+    .hiddenArea.show{
+      max-height: 420px;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .selHeader{
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 14px 16px;
+    }
+    .selHeader .left{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+    }
+    .selHeader .label{
+      font-size: 14px;
+      color: var(--muted);
+      font-weight: 800;
+    }
+    .selHeader .selected{
+      font-size: 18px;
+      font-weight: 950;
+      letter-spacing: -0.02em;
+    }
+    .pill{
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: #eef2ff;
+      color: #1d4ed8;
+      font-weight: 950;
+      font-size: 14px;
+      border: 1px solid #dbeafe;
+      white-space: nowrap;
+    }
+
+    /* 옵션: 다른 반 선택 버튼 */
+    .resetBtn{
+      border: 1px solid var(--line);
+      background:#fff;
+      border-radius: 999px;
+      padding: 8px 10px;
+      font-weight: 900;
+      font-size: 14px;
+      cursor:pointer;
+      -webkit-tap-highlight-color: transparent;
+      box-shadow: 0 8px 14px rgba(17,24,39,.07);
+    }
+
+    .badgeRow{
+      display:flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: #f3f4f6;
+      border: 1px solid var(--line);
+      font-weight: 800;
+      font-size: 14px;
+    }
+    .place{
+      font-size: 24px;
+      font-weight: 1000;
+      letter-spacing: -0.03em;
+      margin: 8px 0 6px;
+      line-height: 1.25;
+    }
+    .time{
+      font-size: 22px;
+      font-weight: 950;
+      margin: 0 0 12px;
+      color: var(--accent);
+    }
+    .hint{
+      margin: 0 0 14px;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.5;
+    }
+    .mapBtns{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    a.mapBtn{
+      text-decoration:none;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      padding: 14px 10px;
+      border-radius: 14px;
+      font-size: 18px;
+      font-weight: 950;
+      border: 1px solid var(--line);
+      background: #fff;
+      box-shadow: 0 10px 16px rgba(17,24,39,.08);
+      color: var(--text);
+      -webkit-tap-highlight-color: transparent;
+    }
+    .dot{width:10px;height:10px;border-radius:999px;background: currentColor;display:inline-block;}
+    .footerNote{margin-top: 10px;font-size: 13px;color: var(--muted);line-height: 1.45;}
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <section class="top" aria-label="반 선택">
+      <h1 class="title">집합 안내</h1>
+      <p class="subtitle">반 버튼을 누르면, <b>장소 + 시간</b>이 아래에 크게 표시됩니다.</p>
+
+      <div class="grid" id="btnList">
+        <button class="btn" data-key="c1" type="button">
+          <span>1반 <small>영풍문고 마리오아울렛점</small></span>
+          <span class="arrow">›</span>
+        </button>
+
+        <button class="btn" data-key="c23" type="button">
+          <span>2반/3반 <small>교보문고 타임스퀘어점</small></span>
+          <span class="arrow">›</span>
+        </button>
+
+        <button class="btn" data-key="c56" type="button">
+          <span>5반/6반 <small>영풍문고 신림점</small></span>
+          <span class="arrow">›</span>
+        </button>
+
+        <button class="btn" data-key="c47" type="button">
+          <span>4반/7반 <small>영풍문고 사당역점</small></span>
+          <span class="arrow">›</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ✅ 처음엔 display:none -->
+    <section class="panel" id="panel" aria-label="선택 결과">
+      <div class="selHeader">
+        <div class="left">
+          <div class="label">선택된 반</div>
+          <div class="selected" id="selectedClass">-</div>
+        </div>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <div class="pill">집합: 오전 10시</div>
+          <button class="resetBtn" id="resetBtn" type="button">다른 반 선택</button>
+        </div>
+      </div>
+
+      <div id="hiddenArea" class="hiddenArea" aria-live="polite">
+        <div class="panelInner" id="detailBox" tabindex="-1">
+          <div class="badgeRow">
+            <span class="badge">📍 <span id="placeShort">-</span></span>
+            <span class="badge">⏰ 오전 10시</span>
+          </div>
+
+          <div class="place" id="placeName">-</div>
+          <div class="time">집합 시간: 오전 10시</div>
+          <p class="hint" id="hintText">
+            아래 버튼을 누르면 <b>현재 위치 → 목적지</b> 길찾기가 열립니다.
+          </p>
+
+          <div class="mapBtns">
+            <a class="mapBtn" id="kakaoBtn" href="#" target="_blank" rel="noopener">
+              <span class="dot" style="color:#f59e0b"></span> 카카오맵
+            </a>
+            <a class="mapBtn" id="naverBtn" href="#" target="_blank" rel="noopener">
+              <span class="dot" style="color:#10b981"></span> 네이버지도
+            </a>
+          </div>
+
+          <div class="footerNote" id="footerNote">
+            위치 권한을 허용하면 자동 길찾기가 열립니다. 권한이 없으면 장소 검색 화면이 열립니다.
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const SPOTS = {
+      c1:  { cls:"1반",      name:"영풍문고 마리오아울렛점", lat:37.47835, lng:126.885216 },
+      c23: { cls:"2반/3반",  name:"교보문고 타임스퀘어점",   lat:37.5176343, lng:126.9042788 },
+      c56: { cls:"5반/6반",  name:"영풍문고 신림점",        lat:37.4838502552454, lng:126.930229684598 },
+      c47: { cls:"4반/7반",  name:"영풍문고 사당역점",      lat:37.4780, lng:126.9821 }
+    };
+
+    function buildKakaoRouteUrl(slat, slng, dlat, dlng) {
+      return `https://m.map.kakao.com/scheme/route?sp=${slat},${slng}&ep=${dlat},${dlng}&by=publictransit`;
+    }
+    function buildKakaoWebSearchUrl(query) {
+      return `https://m.map.kakao.com/scheme/search?q=${encodeURIComponent(query)}&p=37.5665,126.9780`;
+    }
+    function buildNaverRouteUrl(slat, slng, sname, dlat, dlng, dname) {
+      const appname = encodeURIComponent(location.href);
+      return `nmap://route/public?slat=${slat}&slng=${slng}&sname=${encodeURIComponent(sname)}&dlat=${dlat}&dlng=${dlng}&dname=${encodeURIComponent(dname)}&appname=${appname}`;
+    }
+    function buildNaverSearchUrl(query) {
+      const appname = encodeURIComponent(location.href);
+      return `nmap://search?query=${encodeURIComponent(query)}&appname=${appname}`;
+    }
+
+    const btnList = document.getElementById("btnList");
+    const panel = document.getElementById("panel");
+    const hiddenArea = document.getElementById("hiddenArea");
+    const detailBox  = document.getElementById("detailBox");
+    const selectedClass = document.getElementById("selectedClass");
+    const placeShort = document.getElementById("placeShort");
+    const placeName  = document.getElementById("placeName");
+    const kakaoBtn   = document.getElementById("kakaoBtn");
+    const naverBtn   = document.getElementById("naverBtn");
+    const hintText   = document.getElementById("hintText");
+    const resetBtn   = document.getElementById("resetBtn");
+
+    let currentSpotKey = null;
+    let cachedGeo = null;
+
+    function showPanelAndFocus() {
+      panel.classList.add("show");         // ✅ 패널 표시
+      hiddenArea.classList.add("show");    // ✅ 내부 펼치기
+      setTimeout(() => {
+        detailBox.scrollIntoView({ behavior: "smooth", block: "start" });
+        detailBox.focus({ preventScroll: true });
+      }, 60);
+    }
+
+    function compactButtons(selectedBtn) {
+      // ✅ 선택한 버튼만 남기기
+      btnList.classList.add("compact");
+      document.querySelectorAll(".btn").forEach(b => b.classList.remove("active"));
+      selectedBtn.classList.add("active");
+    }
+
+    function resetButtons() {
+      btnList.classList.remove("compact");
+      document.querySelectorAll(".btn").forEach(b => b.classList.remove("active"));
+      // 하단 다시 숨김
+      hiddenArea.classList.remove("show");
+      panel.classList.remove("show");
+      currentSpotKey = null;
+      cachedGeo = null; // ✅ 권장: 초기화 시 위치 캐시도 리셋
+    }
+
+    function setDetail(key, selectedBtn) {
+      const spot = SPOTS[key];
+      currentSpotKey = key;
+
+      compactButtons(selectedBtn);
+
+      // 내용 채우기
+      selectedClass.textContent = spot.cls;
+      placeShort.textContent = spot.name;
+      placeName.textContent = spot.name;
+
+      hintText.innerHTML = `아래 버튼을 누르면 <b>현재 위치 → ${spot.name}</b> 길찾기가 열립니다.`;
+
+      // 기본: 검색 링크(권한 없을 때 대비)
+      kakaoBtn.href = buildKakaoWebSearchUrl(spot.name);
+      naverBtn.href = buildNaverSearchUrl(spot.name);
+
+      showPanelAndFocus();
+      requestGeoAndUpdateLinks();
+    }
+
+    function requestGeoAndUpdateLinks() {
+      const spot = SPOTS[currentSpotKey];
+      if (!spot) return;
+      if (!navigator.geolocation) return;
+
+      if (cachedGeo) {
+        applyRouteLinks(cachedGeo.latitude, cachedGeo.longitude);
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          cachedGeo = pos.coords;
+          applyRouteLinks(pos.coords.latitude, pos.coords.longitude);
+        },
+        () => {
+          // 권한 거부/실패: 검색 링크 유지
+        },
+        { enableHighAccuracy: true, timeout: 7000, maximumAge: 30000 }
+      );
+    }
+
+    function applyRouteLinks(slat, slng) {
+      const spot = SPOTS[currentSpotKey];
+      if (!spot) return;
+
+      kakaoBtn.href = buildKakaoRouteUrl(slat, slng, spot.lat, spot.lng);
+      naverBtn.href = buildNaverRouteUrl(slat, slng, "현재 위치", spot.lat, spot.lng, spot.name);
+
+      hintText.innerHTML = `아래 버튼을 누르면 <b>현재 위치 → ${spot.name}</b> <u>자동 길찾기</u>가 열립니다.`;
+    }
+
+    // ✅ 버튼 토글: 선택된(활성) 버튼을 다시 누르면 초기화
+    document.querySelectorAll(".btn").forEach((b) => {
+      b.addEventListener("click", () => {
+        if (btnList.classList.contains("compact") && b.classList.contains("active")) {
+          resetButtons();
+          // 필요하면 초기화 시 상단으로 이동
+          // window.scrollTo({ top: 0, behavior: "smooth" });
+          return;
+        }
+        setDetail(b.dataset.key, b);
+      });
+    });
+
+    // 다른 반 선택 버튼도 동일 동작
+    resetBtn.addEventListener("click", resetButtons);
+  </script>
+</body>
+</html>
